@@ -113,4 +113,3 @@ class Torus(Object3D):
 dona: Torus = Torus(Vector3D(2,3,1))
 print(dona.matrix)
 # dona.rotate_x(90)
-

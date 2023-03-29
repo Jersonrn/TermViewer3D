@@ -1,6 +1,7 @@
 import numpy as np
 from numpy._typing import NDArray
 
+
 class Vector3D:
     def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0 ) -> None:
         self.x, self.y, self.z = (x, y, z)
