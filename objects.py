@@ -1,5 +1,8 @@
 import sys
+import math
 import numpy as np
+import cupy as cp
+from cupy import ndarray
 from numpy._typing import NDArray
 from Vector import Vector3D
 
@@ -12,7 +15,7 @@ class Object3D:
         self.position: Vector3D = position
         self.rotation: Vector3D = rotation
         self.up: Vector3D = up
-        self.matrix: NDArray = np.array([
+        self.matrix: cp.NDArray = cp.array([
             [1.0000, 0.0000, 0.0000, 0.0000],
             [0.0000, 1.0000, 0.0000, 0.0000],
             [0.0000, 0.0000, 1.0000, 0.0000],
@@ -22,51 +25,51 @@ class Object3D:
         self.__set_defaults(self.position, self.rotation)
 
     def set_position(self, pos: Vector3D) -> None:
-        Pm: NDArray = np.array([
+        Pm: cp.NDArray = cp.array([
             [1.0000, 0.0000, 0.0000, pos.x],
             [0.0000, 1.0000, 0.0000, pos.y],
             [0.0000, 0.0000, 1.0000, pos.z],
             [0.0000, 0.0000, 0.0000, 1.000],
             ])
         
-        self.matrix = np.dot(Pm,self.matrix)
+        self.matrix = cp.dot(Pm,self.matrix)
 
-    def rotate_x(self, angle) -> None:
-        angle = np.deg2rad(angle)
-        Rx: NDArray = np.array([
+    def rotate_x(self, angle: int) -> None:
+        angle = cp.deg2rad(angle)
+        Rx: cp.NDArray = cp.array([
             [1.0000, 0.00000000000, 0.000000000000, 0.0000],
-            [0.0000, np.cos(angle), -np.sin(angle), 0.0000],
-            [0.0000, np.sin(angle),  np.cos(angle), 0.0000],
+            [0.0000, math.cos(angle), -math.sin(angle), 0.0000],
+            [0.0000, math.sin(angle),  math.cos(angle), 0.0000],
             [0.0000, 0.00000000000, 0.000000000000, 1.0000],
             ])
         
-        self.matrix = np.dot(Rx,self.matrix)
+        self.matrix = cp.dot(Rx,self.matrix)
 
     def local_rotate_x(self, angle) -> None: ...
     
     def rotate_y(self, angle) -> None:
-        angle = np.deg2rad(angle)
-        Ry: NDArray = np.array([
-            [ np.cos(angle), 0.0000, np.sin(angle), 0.0000],
+        angle = cp.deg2rad(angle)
+        Ry: cp.NDArray = cp.array([
+            [ math.cos(angle), 0.0000, math.sin(angle), 0.0000],
             [0.000000000000, 1.0000, 0.00000000000, 0.0000],
-            [-np.sin(angle), 0.0000, np.cos(angle), 0.0000],
+            [-math.sin(angle), 0.0000, math.cos(angle), 0.0000],
             [0.000000000000, 0.0000, 0.00000000000, 1.0000],
             ])
         
-        self.matrix = np.dot(Ry,self.matrix)
+        self.matrix = cp.dot(Ry,self.matrix)
 
     def local_rotate_y(self, angle) -> None: ...
 
     def rotate_z(self, angle) -> None:
-        angle = np.deg2rad(angle)
-        Rz: NDArray = np.array([
-            [np.cos(angle),-np.sin(angle), 0.0000, 0.0000],
-            [np.sin(angle), np.cos(angle), 0.0000, 0.0000],
+        angle = cp.deg2rad(angle)
+        Rz: cp.NDArray = cp.array([
+            [math.cos(angle),-math.sin(angle), 0.0000, 0.0000],
+            [math.sin(angle), math.cos(angle), 0.0000, 0.0000],
             [0.00000000000, 0.00000000000, 1.0000, 0.0000],
             [0.00000000000, 0.00000000000, 0.0000, 1.0000],
             ])
         
-        self.matrix = np.dot(Rz,self.matrix)
+        self.matrix = cp.dot(Rz,self.matrix)
 
     def local_rotate_z(self, angle) -> None: ...
 
@@ -79,6 +82,11 @@ class Object3D:
     def local_to_global(self, a): ...
 
     def global_to_local(self, a): ...
+
+    @staticmethod
+    def ascupy(a) -> ndarray:
+        a = cp.asarray(a)
+        return a
 
 
 class Torus(Object3D):
@@ -103,77 +111,55 @@ class Torus(Object3D):
         i: NDArray = np.linspace(start=0, stop=360, num=minor_res, endpoint=False)
         j: NDArray = np.linspace(start=0, stop=360, num=major_res, endpoint=False)
         alpha,phi = np.meshgrid(i,j)
+        alpha, phi = self.ascupy(alpha), self.ascupy(phi)
         
         #X_UP
         if up.x == 1 and up.y == 0 and up.z == 0:
-            vertices: NDArray = np.array([
-                [minor_radio * np.sin(np.deg2rad(alpha))],
-                [(major_radio + minor_radio * np.cos(np.deg2rad(alpha))) * np.cos(np.deg2rad(phi))],
-                [(major_radio + minor_radio * np.cos(np.deg2rad(alpha))) * np.sin(np.deg2rad(phi))]
-                ]).reshape(3,-1)
-            
-            normales: NDArray = np.array([
-                [minor_radio * np.sin(np.deg2rad(alpha))],
-                [(minor_radio * np.cos(np.deg2rad(alpha))) * np.cos(np.deg2rad(phi))],
-                [(minor_radio * np.cos(np.deg2rad(alpha))) * np.sin(np.deg2rad(phi))]
-                ]).reshape(3,-1)
+            vertices: NDArray = cp.array([
+                [minor_radio * cp.sin(cp.deg2rad(alpha))],
+                [(major_radio + minor_radio * cp.cos(cp.deg2rad(alpha))) * cp.cos(cp.deg2rad(phi))],
+                [(major_radio + minor_radio * cp.cos(cp.deg2rad(alpha))) * cp.sin(cp.deg2rad(phi))]
+                ])
+            vertices = cp.reshape(vertices, (3,-1))
             
             homogeneus = np.ones((1, len(vertices[0])), dtype=int)
             vertices = np.vstack((vertices, homogeneus))
             
-            homogeneus = np.ones((1, len(normales[0])), dtype=int)
-            normales = np.vstack((normales, homogeneus))
+            normales: NDArray = vertices
             
             self.vertices: NDArray = vertices
             self.normales: NDArray = normales
         
         #Y_UP
         elif up.x == 0 and up.y == 1 and up.z == 0:
-            vertices: NDArray = np.array([
-                [(major_radio + minor_radio * np.cos(np.deg2rad(alpha))) * np.cos(np.deg2rad(phi))],
-                [minor_radio * np.sin(np.deg2rad(alpha))],
-                [(major_radio + minor_radio * np.cos(np.deg2rad(alpha))) * -np.sin(np.deg2rad(phi))]
-                ]).reshape(3,-1)
-            
-            normales: NDArray = np.array([
-                [(minor_radio * np.cos(np.deg2rad(alpha))) * np.cos(np.deg2rad(phi))],
-                [minor_radio * np.sin(np.deg2rad(alpha))],
-                [(minor_radio * np.cos(np.deg2rad(alpha))) * -np.sin(np.deg2rad(phi))]
-                ]).reshape(3,-1)
+            vertices: NDArray = cp.array([
+                [(major_radio + minor_radio * cp.cos(cp.deg2rad(alpha))) * cp.cos(cp.deg2rad(phi))],
+                [minor_radio * cp.sin(cp.deg2rad(alpha))],
+                [(major_radio + minor_radio * cp.cos(cp.deg2rad(alpha))) * -cp.sin(cp.deg2rad(phi))]
+                ])
+            vertices = cp.reshape(vertices, (3,-1))
             
             homogeneus = np.ones((1, len(vertices[0])), dtype=int)
             vertices = np.vstack((vertices, homogeneus))
             
-            homogeneus = np.ones((1, len(normales[0])), dtype=int)
-            normales = np.vstack((normales, homogeneus))
+            normales: NDArray = vertices
             
             self.vertices: NDArray = vertices
             self.normales: NDArray = normales
         
         #Z_UP
         elif up.x == 0 and up.y == 0 and up.z == 1:
-            vertices: NDArray = np.array([
-                [(major_radio + minor_radio * np.cos(np.deg2rad(alpha))) * np.cos(np.deg2rad(phi))],
-                [(major_radio + minor_radio * np.cos(np.deg2rad(alpha))) * np.sin(np.deg2rad(phi))],
-                [minor_radio * np.sin(np.deg2rad(alpha))],
-                ]).reshape(3,-1)
+            vertices: NDArray = cp.array([
+                [(major_radio + minor_radio * cp.cos(cp.deg2rad(alpha))) * cp.cos(cp.deg2rad(phi))],
+                [(major_radio + minor_radio * cp.cos(cp.deg2rad(alpha))) * cp.sin(cp.deg2rad(phi))],
+                [minor_radio * cp.sin(cp.deg2rad(alpha))],
+                ])
+            vertices = cp.reshape(vertices, (3,-1))
 
-            normales: NDArray = np.array([
-                [(major_radio + minor_radio * np.cos(np.deg2rad(alpha))) * np.cos(np.deg2rad(phi))],
-                [(major_radio + minor_radio * np.cos(np.deg2rad(alpha))) * np.sin(np.deg2rad(phi))],
-                [minor_radio * np.sin(np.deg2rad(alpha))],
-                ]).reshape(3,-1)
-            # normales: NDArray = np.array([
-            #     [(minor_radio * np.cos(np.deg2rad(alpha))) * np.cos(np.deg2rad(phi))],
-            #     [(minor_radio * np.cos(np.deg2rad(alpha))) * np.sin(np.deg2rad(phi))],
-            #     [minor_radio * np.sin(np.deg2rad(alpha))],
-            #     ]).reshape(3,-1)
-            
             homogeneus = np.ones((1, len(vertices[0])), dtype=int)
             vertices = np.vstack((vertices, homogeneus))
             
-            homogeneus = np.ones((1, len(normales[0])), dtype=int)
-            normales = np.vstack((normales, homogeneus))
+            normales: NDArray = vertices
             
             self.vertices: NDArray = vertices
             self.normales: NDArray = normales
@@ -182,11 +168,11 @@ class Torus(Object3D):
             raise Exception(ValueError)
 
     def local_to_global(self, a):
-        return np.dot(self.matrix, a)
+        return cp.dot(self.matrix, a)
         # return super().local_to_global(a)
 
     def global_to_local(self, a):
-        return np.dot(self.matrix, a)
+        return cp.dot(self.matrix, a)
         # return super().global_to_local(a)
 
 
@@ -202,11 +188,11 @@ class Light(Object3D):
         self.strenght: float = strenght
 
     def local_to_global(self, a):
-        return np.dot(self.matrix, a)
+        return cp.dot(self.matrix, a)
         # return super().local_to_global(a)
 
     def global_to_local(self, a):
-        return np.dot(self.matrix, a)
+        return cp.dot(self.matrix, a)
         # return super().global_to_local(a)
 
 
@@ -231,17 +217,17 @@ class Camera(Object3D):
         self.output: NDArray = np.full((int(self.image_width), int(self.image_height)), " ")
  
     def global_to_local(self, a):
-        return np.dot(np.linalg.inv(self.matrix), a)
+        return cp.dot(cp.linalg.inv(self.matrix), a)
         # return super().global_to_local(a)
 
     def local_to_global(self, a):
-        return np.dot(np.linalg.inv(self.matrix), a)
+        return cp.dot(cp.linalg.inv(self.matrix), a)
         # return super().local_to_global(a)
 
     def __join_vertices_and_normals(self, meshes):
         #Concatena todos los vertices y los transforma a WorldSpace
-        return np.concatenate([[mesh.local_to_global(mesh.vertices),
-                                mesh.local_to_global(mesh.normales)]
+        return np.concatenate([[cp.asnumpy( mesh.local_to_global(mesh.vertices) ),
+                                cp.asnumpy( mesh.local_to_global(mesh.normales) )]
                                for mesh in meshes], axis=1)
 
     def sort_by_distance(self, vertices, normales):
@@ -328,6 +314,7 @@ class Camera(Object3D):
     def render(self, meshes, light: Light) -> None:
         self.output: NDArray = np.full((int(self.image_width), int(self.image_height)), " ")
         vertices, normales = self.__join_vertices_and_normals(meshes)
+        vertices, normales = self.ascupy(vertices), self.ascupy(normales)
         vertices = self.global_to_local(vertices)[:-1].T
         normales = self.global_to_local(normales)[:-1].T
         
@@ -337,9 +324,10 @@ class Camera(Object3D):
         # vertices = vertices[i]
         # normales = normales[i]
      
+        vertices, normales = cp.asnumpy(vertices), cp.asnumpy(normales)
         vertices, normales = self.sort_by_distance(vertices, normales)
         
-        p_screen: NDArray = self.__perspective_projection(vertices)
+        p_screen = self.__perspective_projection(vertices)
         p_screen, normales = self.__crop_screen(p_screen, normales)
         
         p_norm: NDArray = self.__normalize_point(p_screen)
@@ -348,8 +336,9 @@ class Camera(Object3D):
         
         ascii = np.array([".", ",", "-", "~", ":", ";", "=", "!", "*", "#", "$", "@"])
         
-        light_dir = light.local_to_global(light.dir.Vector3D2Array4D())
+        light_dir = light.local_to_global(self.ascupy( light.dir.Vector3D2Array4D() ))
         light_dir = self.global_to_local(light_dir)[:-1]
+        light_dir = cp.asnumpy(light_dir)
         
         luminance = self.__luminance(normales, light_dir)
         luminance = self.__luminance_normalized(luminance)
@@ -390,5 +379,32 @@ class Cube(Object3D):
                                  num=int(res.z), endpoint=True)
         
         x, y, z = np.meshgrid(i, j, k)
-        vertices = np.stack((x,y,z), axis=0)
-        print(vertices)
+        x, y, z = x.ravel(), y.ravel(), z.ravel()
+        vertices = np.array([x, y, z])
+        
+        # mask =  np.logical_and(vertices[0] > -size.x, np.logical_and(vertices[0] < size.x,
+        #         np.logical_and(vertices[1] > -size.y, np.logical_and(vertices[1] < size.y,
+        #         np.logical_and(vertices[2] > -size.z, vertices[2] < size.z)))))
+        
+        mask_x = np.logical_or(vertices[0] == (-size.x), vertices[0] == (size.x))
+        mask_y = np.logical_or(vertices[1] == (-size.y), vertices[1] == (size.y))
+        mask_z = np.logical_or(vertices[2] == (-size.z), vertices[2] == (size.z))
+        mask = np.logical_or(mask_x, np.logical_or(mask_y, mask_z))
+
+        vertices = vertices.transpose()
+        vertices = vertices[mask]
+        vertices = vertices.transpose()
+
+        homogeneus = np.ones((1, len(vertices[0])), dtype=int)
+        vertices = np.vstack((vertices, homogeneus))
+        
+        self.vertices = self.ascupy( vertices )
+        self.normales = self.ascupy( vertices )
+
+    def local_to_global(self, a):
+        return cp.dot(self.matrix, a)
+        # return super().local_to_global(a)
+
+    def global_to_local(self, a):
+        return cp.dot(self.matrix, a)
+        # return super().global_to_local(a)
