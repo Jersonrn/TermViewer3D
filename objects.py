@@ -6,6 +6,11 @@ from cupy import ndarray
 from numpy._typing import NDArray
 from Vector import Vector3D
 
+from pywavefront import Wavefront
+from pywavefront.mesh import Mesh
+from pywavefront.material import Material
+
+
 class Object3D:
     def __init__(self,
                  position: Vector3D = Vector3D(),
@@ -400,6 +405,95 @@ class Cube(Object3D):
         
         self.vertices = self.ascupy( vertices )
         self.normales = self.ascupy( vertices )
+
+    def local_to_global(self, a):
+        return cp.dot(self.matrix, a)
+        # return super().local_to_global(a)
+
+    def global_to_local(self, a):
+        return cp.dot(self.matrix, a)
+        # return super().global_to_local(a)
+
+class Plane(Object3D):
+    def __init__(self,
+                 position: Vector3D = Vector3D(),
+                 rotation: Vector3D = Vector3D(),
+                 up: Vector3D = Vector3D(0, 1, 0),
+                 size: Vector3D = Vector3D(1, 1, 0),
+                 res: Vector3D = Vector3D(10, 10, 0)) -> None:
+        super().__init__(position, rotation, up)
+        self.vertices: NDArray
+        self.normales: NDArray
+        self.update_mesh(size, res)
+        
+    def update_mesh(self, size, res) -> None:
+        i: NDArray = np.linspace(start=-size.x, stop=size.x,
+                                 num=int(res.x), endpoint=True)
+        
+        j: NDArray = np.linspace(start=-size.y, stop=size.y,
+                                 num=int(res.y), endpoint=True)
+        x, y = np.meshgrid(i, j)
+        x, y = np.ravel(x), np.ravel(y)
+        
+        z = np.zeros((len(x)), dtype=int)
+        homogeneus = np.ones(len(x), dtype=int)
+        
+        if self.up.x == 1 and self.up.y == 0 and self.up.z == 0:
+            vertices = np.array([z, y, x, homogeneus])
+            self.vertices = self.ascupy( vertices )
+            self.normales = self.ascupy( vertices )
+        
+        elif self.up.x == 0 and self.up.y == 1 and self.up.z == 0:
+            vertices = np.array([x, z, y, homogeneus])
+            self.vertices = self.ascupy( vertices )
+            self.normales = self.ascupy( vertices )
+        
+        elif self.up.x == 0 and self.up.y == 0 and self.up.z == 1:
+            vertices = np.array([x, y, z, homogeneus])
+            self.vertices = self.ascupy( vertices )
+            self.normales = self.ascupy( vertices )
+        
+        else:
+            raise Exception(ValueError)
+
+    def local_to_global(self, a):
+        return cp.dot(self.matrix, a)
+        # return super().local_to_global(a)
+
+    def global_to_local(self, a):
+        return cp.dot(self.matrix, a)
+        # return super().global_to_local(a)
+
+class Suzanne(Object3D):
+    def __init__(self,
+                 position: Vector3D = Vector3D(),
+                 rotation: Vector3D = Vector3D(),
+                 up: Vector3D = Vector3D(0, 1, 0)) -> None:
+        super().__init__(position, rotation, up)
+        self.vertices: ndarray
+        self.normales: ndarray
+        self.update_mesh()
+
+    def import_obj(self):
+        suzanne = Wavefront("3D_Models/Suzanne.obj")
+        suzanne.parse()
+        # m = suzanne.materials.items()
+        vertices = np.array(suzanne.vertices)
+        
+        homogeneus = np.ones((vertices.shape[0], 1), dtype=int)
+        
+        vertices = np.concatenate((vertices, homogeneus), axis=1)
+        
+        vertices = vertices.transpose()
+        
+        return self.ascupy(vertices)
+
+    def update_mesh(self) -> None:
+        vertices = self.import_obj()
+        normales = vertices
+        
+        self.vertices = vertices
+        self.normales = normales
 
     def local_to_global(self, a):
         return cp.dot(self.matrix, a)
