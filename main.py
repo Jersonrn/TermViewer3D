@@ -16,13 +16,13 @@ def show_3D(vertices):
     plt.show()
 
 if __name__ == "__main__":
-    # dona: Torus = Torus(position=Vector3D(0,0,-0),
-    #                     rotation=Vector3D(33,0,0),
-    #                     up=Vector3D(0,0,1),
-    #                     major_res= 60,
-    #                     minor_res= 60,
-    #                     major_radio=1,
-    #                     minor_radio=0.25)
+    dona: Torus = Torus(position=Vector3D(0,0,-0),
+                        rotation=Vector3D(33,0,0),
+                        up=Vector3D(0,0,1),
+                        major_res= 60,
+                        minor_res= 60,
+                        major_radio=1,
+                        minor_radio=0.25)
 
     # cube: Cube = Cube(position=Vector3D(0, 0, 0),
     #                   rotation=Vector3D(),
@@ -36,9 +36,9 @@ if __name__ == "__main__":
     #                      size=Vector3D(1, 1, 0),
     #                      res=Vector3D(10, 10, 0))
 
-    suzanne: Suzanne = Suzanne(position=Vector3D(0, 0, 0),
-                               rotation=Vector3D(0, 0, 90),
-                               up=Vector3D(0, 1, 0))
+#     suzanne: Suzanne = Suzanne(position=Vector3D(0, 0, 0),
+#                                rotation=Vector3D(0, 0, 90),
+#                                up=Vector3D(0, 1, 0))
 
     light: Light = Light(position=Vector3D(-0.0, 0.0, 3.0),
                          rotation=Vector3D(),
@@ -50,14 +50,14 @@ if __name__ == "__main__":
                             rotation=Vector3D(), 
                            up=Vector3D(0,1,0))
 
-    objects: list = [suzanne, light, camera]
+    objects: list = [dona, light, camera]
     i = 0
     selected: Object3D
     speed = 0.1
 
     # show_3D(cube.vertices)
     while True:
-        camera.render(meshes=[suzanne], light=light)
+        camera.render(meshes=[dona], light=light)
         
         selected = objects[i]
         

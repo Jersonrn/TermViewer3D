@@ -1,5 +1,7 @@
 import numpy as np
 from numpy._typing import NDArray
+import cupy as cp 
+from cupy import ndarray
 
 
 class Vector3D:
@@ -17,6 +19,9 @@ class Vector3D:
 
     def Vector3D2Array4D(self) -> NDArray:
         return np.array([self.x, self.y, self.z, 1])
+
+    def cpVector3D2Array4D(self) -> ndarray:
+        return cp.asarray([self.x, self.y, self.z, 1])
 
     def dot(self, v: "Vector3D") -> float:
         return np.dot(self.Vector3D2Array3D(), v.Vector3D2Array3D())
