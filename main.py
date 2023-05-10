@@ -1,4 +1,5 @@
 import time
+import json
 import matplotlib.pyplot as plt
 import keyboard
 from Vector import Vector3D
@@ -6,14 +7,21 @@ from objects import Camera, Cube, Light, Object3D, Plane, Torus, Suzanne
 from render import Render
 
 
-def show_3D(vertices):
-    limit = 1
-    ax = plt.axes(projection="3d")
-    ax.scatter(vertices[0],vertices[1],vertices[2])
-    # ax.scatter(normales[0],normales[1],normales[2])
-    # ax.scatter(light[0],light[1],light[2])
-    ax.scatter([-limit,limit],[-limit,limit],[-limit,limit])
-    plt.show()
+def _stop_process():
+    global process
+    process = False
+
+def _swich():
+    global i
+    if i == len(objects) - 1:
+        i = 0
+    else:
+        i += 1
+
+
+def on_key_press(event):
+    eval( keys[f"{event.name}"] )
+
 
 if __name__ == "__main__":
     dona: Torus = Torus(position=Vector3D(0,0,-0),
@@ -50,49 +58,21 @@ if __name__ == "__main__":
                             rotation=Vector3D(), 
                            up=Vector3D(0,1,0))
 
+    process = True
     objects: list = [dona, light, camera]
     i = 0
     selected: Object3D
     speed = 0.1
 
-    # show_3D(cube.vertices)
-    while True:
+    with open("settings/keybindings.json") as file:
+        keys = json.load(file)
+
+    while process == True:
         camera.render(meshes=[dona], light=light)
         
         selected = objects[i]
         
-        if keyboard.is_pressed("esc"):
-            break
-        
-        elif keyboard.is_pressed("tab"):
-            if i == len(objects) - 1:
-                i = 0
-            else:
-                i += 1
-        
-        #Move
-        elif keyboard.is_pressed("w"):
-            selected.set_position(Vector3D(0, 0,-speed))
-        elif keyboard.is_pressed("s"):
-            selected.set_position(Vector3D(0, 0, speed))
-        elif keyboard.is_pressed("d"):
-            selected.set_position(Vector3D(0,-speed, 0))
-        elif keyboard.is_pressed("a"):
-            selected.set_position(Vector3D(0, speed, 0))
-        elif keyboard.is_pressed("e"):
-            selected.set_position(Vector3D(-speed, 0,0))
-        elif keyboard.is_pressed("q"):
-            selected.set_position(Vector3D(speed, 0, 0))
-        
-        #Rotate
-        elif keyboard.is_pressed("up"):
-            selected.rotate_y(-1)
-        elif keyboard.is_pressed("down"):
-            selected.rotate_y(1)
-        elif keyboard.is_pressed("right"):
-            selected.rotate_x(1)
-        elif keyboard.is_pressed("left"):
-            selected.rotate_x(-1)
+        keyboard.on_press(on_key_press)
         
         # time.sleep(0.04166666666)
         time.sleep(0.01666666666)

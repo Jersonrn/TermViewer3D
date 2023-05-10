@@ -1,0 +1,16 @@
+{
+"esc": "_stop_process()",
+"tab": "_swich()",
+
+"w": "selected.set_position(Vector3D(0, 0,-speed))",
+"s": "selected.set_position(Vector3D(0, 0, speed))",
+"d": "selected.set_position(Vector3D(0,-speed, 0))",
+"a": "selected.set_position(Vector3D(0, speed, 0))",
+"e": "selected.set_position(Vector3D(-speed, 0,0))",
+"q": "selected.set_position(Vector3D(speed, 0, 0))",
+
+"up": "selected.rotate_y(-1)",
+"down": "selected.rotate_y(1)",
+"right": "selected.rotate_x(1)",
+"left": "selected.rotate_x(-1)"
+}
