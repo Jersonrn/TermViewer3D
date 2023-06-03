@@ -3,7 +3,7 @@ import json
 import matplotlib.pyplot as plt
 import keyboard
 from Vector import Vector3D
-from objects import Camera, Cube, Light, Object3D, Plane, Torus, Suzanne
+from objects import Ankylosaurus, Camera, Cube, Light, Object3D, Plane, Sphere, Torus, Suzanne
 from render import Render
 
 
@@ -35,8 +35,8 @@ if __name__ == "__main__":
     # cube: Cube = Cube(position=Vector3D(0, 0, 0),
     #                   rotation=Vector3D(),
     #                   up= Vector3D(0, 1, 0),
-    #                   size=Vector3D(1, 1, 1),
-    #                   res=Vector3D(20, 20, 20))
+    #                   size=Vector3D(0.8, 0.8, 0.8),
+    #                   res=Vector3D(40, 40, 40))
 
     # plane: Plane = Plane(position=Vector3D(0, 0, 0),
     #                      rotation=Vector3D(0, 0, 0),
@@ -48,6 +48,14 @@ if __name__ == "__main__":
 #                                rotation=Vector3D(0, 0, 90),
 #                                up=Vector3D(0, 1, 0))
 
+    # sphere: Sphere = Sphere(position=Vector3D(0, 0, 0),
+    #                         rotation=Vector3D(0, 0, 90),
+    #                         up=Vector3D(0, 1, 0))
+
+    # ankylsaurus: Ankylosaurus = Ankylosaurus(position=Vector3D(0, 0, 0),
+    #                         rotation=Vector3D(0, 0, 90),
+    #                         up=Vector3D(0, 1, 0))
+
     light: Light = Light(position=Vector3D(-0.0, 0.0, 3.0),
                          rotation=Vector3D(),
                          up=Vector3D(0,1,0),
@@ -58,21 +66,31 @@ if __name__ == "__main__":
                             rotation=Vector3D(), 
                            up=Vector3D(0,1,0))
 
-    process = True
+
+    with open("settings/keybindings.json") as file:
+        keys = json.load(file)
+
+
     objects: list = [dona, light, camera]
     i = 0
     selected: Object3D
     speed = 0.1
-
-    with open("settings/keybindings.json") as file:
-        keys = json.load(file)
+    process = True
+    last_key_time = time.time()
 
     while process == True:
         camera.render(meshes=[dona], light=light)
         
         selected = objects[i]
         
-        keyboard.on_press(on_key_press)
+        current_time = time.time()
+        delta_time = current_time - last_key_time
+        if delta_time > 1:
+            keyboard.on_press(on_key_press, suppress=True)
+            last_key_time = time.time()
+        else:
+            pass
         
-        # time.sleep(0.04166666666)
-        time.sleep(0.01666666666)
+        # time.sleep(0.08333333333333333) #12 fps
+        # time.sleep(0.04166666666) #24 fps
+        time.sleep(0.01666666666) #60 fps

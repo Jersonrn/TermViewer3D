@@ -494,3 +494,83 @@ class Suzanne(Object3D):
     def global_to_local(self, a):
         return cp.dot(self.matrix, a)
         # return super().global_to_local(a)
+
+
+class Sphere(Object3D):
+    def __init__(self,
+                 position: Vector3D = Vector3D(),
+                 rotation: Vector3D = Vector3D(),
+                 up: Vector3D = Vector3D(0, 1, 0)) -> None:
+        super().__init__(position, rotation, up)
+        self.vertices: ndarray
+        self.normales: ndarray
+        self.update_mesh()
+
+    def import_obj(self):
+        suzanne = Wavefront("3D_Models/Sphere.obj")
+        suzanne.parse()
+        # m = suzanne.materials.items()
+        vertices = np.array(suzanne.vertices)
+        
+        homogeneus = np.ones((vertices.shape[0], 1), dtype=int)
+        
+        vertices = np.concatenate((vertices, homogeneus), axis=1)
+        
+        vertices = vertices.transpose()
+        
+        return self.ascupy(vertices)
+
+    def update_mesh(self) -> None:
+        vertices = self.import_obj()
+        normales = vertices
+        
+        self.vertices = vertices
+        self.normales = normales
+
+    def local_to_global(self, a):
+        return cp.dot(self.matrix, a)
+        # return super().local_to_global(a)
+
+    def global_to_local(self, a):
+        return cp.dot(self.matrix, a)
+        # return super().global_to_local(a)
+
+
+class Ankylosaurus(Object3D):
+    def __init__(self,
+                 position: Vector3D = Vector3D(),
+                 rotation: Vector3D = Vector3D(),
+                 up: Vector3D = Vector3D(0, 1, 0)) -> None:
+        super().__init__(position, rotation, up)
+        self.vertices: ndarray
+        self.normales: ndarray
+        self.update_mesh()
+
+    def import_obj(self):
+        suzanne = Wavefront("3D_Models/Ankylosaurus.obj")
+        suzanne.parse()
+        # m = suzanne.materials.items()
+        vertices = np.array(suzanne.vertices)
+        
+        homogeneus = np.ones((vertices.shape[0], 1), dtype=int)
+        
+        vertices = np.concatenate((vertices, homogeneus), axis=1)
+        
+        vertices = vertices.transpose()
+        
+        return self.ascupy(vertices)
+
+    def update_mesh(self) -> None:
+        vertices = self.import_obj()
+        normales = vertices
+        
+        self.vertices = vertices
+        self.normales = normales
+
+    def local_to_global(self, a):
+        return cp.dot(self.matrix, a)
+        # return super().local_to_global(a)
+
+    def global_to_local(self, a):
+        return cp.dot(self.matrix, a)
+        # return super().global_to_local(a)
