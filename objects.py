@@ -55,9 +55,9 @@ class Object3D:
         angle = cp.deg2rad(angle)
         Ry: cp.NDArray = cp.array([
             [float64( cos(angle)), 0.0000, float64(sin(angle)), 0.0000],
-            [0.000000000000000000, 1.0000, 0.000000000000000000, 0.0000],
+            [0.000000000000000000, 1.0000, 0.00000000000000000, 0.0000],
             [float64(-sin(angle)), 0.0000, float64(cos(angle)), 0.0000],
-            [0.000000000000000000, 0.0000, 0.000000000000000000, 1.0000],
+            [0.000000000000000000, 0.0000, 0.00000000000000000, 1.0000],
             ])
         
         self.matrix = cp.dot(Ry, self.matrix)
@@ -89,8 +89,7 @@ class Object3D:
 
     @staticmethod
     def ascupy(a) -> ndarray:
-        a = cp.asarray(a)
-        return a
+        return cp.asarray(a)
 
 
 class Torus(Object3D):

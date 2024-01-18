@@ -11,12 +11,9 @@ def _stop_process():
     global process
     process = False
 
-def _swich():
+def _swich() -> None:
     global i
-    if i == len(objects) - 1:
-        i = 0
-    else:
-        i += 1
+    i = 0 if i >= len(objects) else i + 1
 
 
 def on_key_press(event):
@@ -24,11 +21,11 @@ def on_key_press(event):
 
 
 if __name__ == "__main__":
-    dona: Torus = Torus(position=Vector3D(0,0,-0),
+    dona: Torus = Torus(position=Vector3D(0.16,0,-0),
                         rotation=Vector3D(33,0,0),
                         up=Vector3D(0,0,1),
-                        major_res= 60,
-                        minor_res= 60,
+                        major_res= 80,
+                        minor_res= 80,
                         major_radio=1,
                         minor_radio=0.25)
 
@@ -82,14 +79,16 @@ if __name__ == "__main__":
         camera.render(meshes=[dona], light=light)
         
         selected = objects[i]
+        selected.rotate_x(1)
+        selected.rotate_y(0.5)
         
-        current_time = time.time()
-        delta_time = current_time - last_key_time
-        if delta_time > 1:
-            keyboard.on_press(on_key_press, suppress=True)
-            last_key_time = time.time()
-        else:
-            pass
+        # current_time = time.time()
+        # delta_time = current_time - last_key_time
+        # if delta_time > 1:
+        #     keyboard.on_press(on_key_press, suppress=True)
+        #     last_key_time = time.time()
+        # else:
+        #     pass
         
         # time.sleep(0.08333333333333333) #12 fps
         # time.sleep(0.04166666666) #24 fps
