@@ -1,4 +1,4 @@
-# TermiViewer3D
+# TermViewer3D
 
 Interactive terminal environment that allows users to explore 3D models in real-time.
 
