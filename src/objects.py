@@ -3,7 +3,7 @@ import numpy as np
 import cupy as cp
 from cupy import float64, ndarray, cos, sin
 from numpy._typing import NDArray
-from Vector import Vector3D
+from src.vector import Vector3D
 
 from pywavefront import Wavefront
 from pywavefront.mesh import Mesh
