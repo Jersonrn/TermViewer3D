@@ -38,7 +38,12 @@ class Object3D:
         
         self.matrix = cp.dot(Pm, self.matrix)
 
-    def rotate_x(self, angle: int) -> None:
+    def rotate(self, angle: Vector3D) -> None:
+        self.rotate_x(angle.x)
+        self.rotate_y(angle.y)
+        self.rotate_z(angle.z)
+
+    def rotate_x(self, angle: float) -> None:
         angle = cp.deg2rad(angle)
         Rx: cp.NDArray = cp.array([
             [1.0000, 0.00000000000000000, 0.000000000000000000, 0.0000],

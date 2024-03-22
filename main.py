@@ -41,8 +41,7 @@ def main():
 
 
     while process:
-        outliner.selected.rotate_x(1)
-        outliner.selected.rotate_y(0.5)
+        outliner.selected.rotate(Vector3D(1, 0.5, 0))
 
         outliner.render()
 
